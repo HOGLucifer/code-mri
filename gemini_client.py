@@ -38,6 +38,17 @@ def studio_generate_multimodal(prompt: str, image_base64: str):
     cleaned = response.text.replace("```json", "").replace("```", "").strip()
 
     return json.loads(cleaned)
+# ---------- AI STUDIO TEXT ----------
+def studio_generate_text(prompt: str):
+
+    client = genai.Client(api_key=API_KEY)
+
+    response = client.models.generate_content(
+        model="models/gemini-2.5-flash",
+        contents=prompt
+    )
+
+    return response.text
 
 
 # ---------- VERTEX CLIENT ----------
@@ -65,6 +76,17 @@ def vertex_generate_multimodal(prompt: str, image_base64: str):
 
     return response.text
 
+# ---------- VERTEX TEXT ----------
+def vertex_generate_text(prompt: str):
+
+    vertexai.init(project=PROJECT_ID, location=REGION)
+
+    model = GenerativeModel("gemini-2.5-flash")
+
+    response = model.generate_content(prompt)
+
+    return response.text
+
 
 # ---------- ROUTER ----------
 def generate_multimodal(prompt: str, image_base64: str):
@@ -73,3 +95,11 @@ def generate_multimodal(prompt: str, image_base64: str):
         return vertex_generate_multimodal(prompt, image_base64)
 
     return studio_generate_multimodal(prompt, image_base64)
+
+# ---------- TEXT ROUTER ----------
+def generate_text(prompt: str):
+
+    if GEMINI_MODE == "vertex":
+        return vertex_generate_text(prompt)
+
+    return studio_generate_text(prompt)
